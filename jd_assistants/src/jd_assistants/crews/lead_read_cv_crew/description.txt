@@ -1,0 +1,80 @@
+Crew này dùng PyMuPDF để đọc các CV dạng pdf.
+Sau khi đọc xong sẽ trẻ về dang json gồm các trường thông tin sau:
+	
+1. personal_info
+name: Tên của ứng viên.
+email: Địa chỉ email của ứng viên.
+phone: Số điện thoại liên lạc của ứng viên.
+job_title: Chức danh công việc hiện tại hoặc mong muốn của ứng viên.
+additional_info: Thông tin bổ sung khác mà ứng viên muốn cung cấp (ví dụ: sở thích, mục tiêu nghề nghiệp).
+
+2. education
+university: Tên trường đại học hoặc cơ sở giáo dục mà ứng viên đã theo học.
+major: Chuyên ngành học của ứng viên.
+start_date: Ngày bắt đầu học.
+end_date: Ngày tốt nghiệp hoặc kết thúc học.
+descriptions: Mô tả về chương trình học hoặc các hoạt động liên quan đến giáo dục.
+
+3. work_experience
+company: Tên công ty nơi ứng viên đã làm việc.
+position: Chức vụ hoặc vị trí công việc của ứng viên.
+start_date: Ngày bắt đầu làm việc tại công ty.
+end_date: Ngày kết thúc công việc tại công ty.
+descriptions: Mô tả về công việc, nhiệm vụ và thành tựu trong thời gian làm việc.
+
+4. skills
+name: Tên kỹ năng mà ứng viên sở hữu (ví dụ: lập trình, quản lý dự án).
+levels: Mức độ thành thạo của kỹ năng (ví dụ: cơ bản, trung bình, nâng cao).
+descriptions: Mô tả chi tiết về kỹ năng, cách ứng viên đã sử dụng kỹ năng đó trong công việc.
+
+5. certificates
+name: Tên chứng chỉ mà ứng viên đã đạt được.
+organization: Tổ chức cấp chứng chỉ.
+start_date: Ngày bắt đầu chương trình cấp chứng chỉ.
+end_date: Ngày kết thúc hoặc ngày cấp chứng chỉ.
+description: Mô tả về chứng chỉ, nội dung khóa học hoặc lý do ứng viên đạt được chứng chỉ.
+
+6. awards
+organization: Tên tổ chức đã trao giải thưởng.
+position: Tên giải thưởng hoặc danh hiệu mà ứng viên đã nhận.
+start_date: Ngày nhận giải thưởng.
+end_date: Ngày kết thúc hoặc thời gian giải thưởng có hiệu lực.
+description: Mô tả về giải thưởng, lý do nhận giải thưởng.
+
+7. courses
+name: Tên khóa học mà ứng viên đã tham gia.
+organization: Tổ chức hoặc trường đã tổ chức khóa học.
+start_date: Ngày bắt đầu khóa học.
+end_date: Ngày kết thúc khóa học.
+description: Mô tả về nội dung khóa học và những gì ứng viên đã học được.
+
+8. projects
+name: Tên dự án mà ứng viên đã tham gia.
+customer: Tên khách hàng hoặc tổ chức mà dự án phục vụ.
+num_members: Số lượng thành viên trong nhóm dự án.
+position: Vị trí của ứng viên trong dự án.
+tasks: Các nhiệm vụ mà ứng viên đã thực hiện trong dự án.
+technologies: Các công nghệ hoặc công cụ đã sử dụng trong dự án.
+
+9. products
+name: Tên sản phẩm mà ứng viên đã tham gia phát triển hoặc quản lý.
+class: Loại sản phẩm (ví dụ: phần mềm, ứng dụng di động).
+start_date: Ngày bắt đầu phát triển sản phẩm.
+end_date: Ngày hoàn thành hoặc ra mắt sản phẩm.
+description: Mô tả về sản phẩm, tính năng và vai trò của ứng viên trong quá trình phát triển.
+
+10. activities
+organization: Tên tổ chức hoặc câu lạc bộ mà ứng viên tham gia.
+position: Vị trí hoặc vai trò của ứng viên trong tổ chức.
+start_date: Ngày bắt đầu tham gia hoạt động.
+end_date: Ngày kết thúc tham gia hoạt động.
+description: Mô tả về hoạt động, vai trò và những gì ứng viên đã đạt được.
+Các trường thông tin này giúp cung cấp cái nhìn tổng quan về ứng viên, từ thông tin cá nhân, trình độ học vấn, kinh nghiệm làm việc, kỹ năng, chứng chỉ, giải thưởng, khóa học, dự án, sản phẩm cho đến các hoạt động ngoại khóa.
+
+Trong đó, các trường thông tin quan trọng nhất là:
+    - personal_info
+    - education
+    - work_experience
+    - skills
+
+Sau khi 

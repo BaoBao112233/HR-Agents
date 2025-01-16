@@ -1,0 +1,21 @@
+[project]
+name = "jd_assistants"
+version = "0.1.0"
+description = "jd_assistants using crewAI"
+authors = [{ name = "Your Name", email = "you@example.com" }]
+requires-python = ">=3.10,<=3.13"
+dependencies = [
+    "crewai[tools]>=0.86.0,<1.0.0",
+    "pymupdf"
+]
+
+[project.scripts]
+jd_assistants = "jd_assistants.main:run"
+run_crew = "jd_assistants.main:run"
+train = "jd_assistants.main:train"
+replay = "jd_assistants.main:replay"
+test = "jd_assistants.main:test"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
