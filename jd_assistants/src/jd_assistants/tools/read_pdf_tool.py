@@ -5,6 +5,7 @@ import fitz
 import pdfplumber
 import re 
 import calendar
+import json
 
 class ReadPDFToolInput(BaseModel):
     """Input schema for ReadPDFTool."""
@@ -24,6 +25,11 @@ class ReadPDFTool(BaseTool):
     def _run(self, pdf_path: str) -> str:
         # Đọc nội dung từ file PDF
         pages = []
+        if isinstance(pdf_path, tuple) and len(pdf_path) == 1:  # Check if pdf_path is a tuple with one element
+            pdf_path = pdf_path[0]  # Extract the string from the tuple
+        if not isinstance(pdf_path, str):  # Check if pdf_path is a string
+            print(f"Invalid pdf_path: {pdf_path}")
+            return "Error"
         try:
             document = fitz.open(pdf_path)
             
@@ -32,15 +38,16 @@ class ReadPDFTool(BaseTool):
                 text = page.get_text()
                 pages.append(text)
             document.close()
-        except fitz.FitzError as e:  # Bắt lỗi cụ thể từ PyMuPDF
+        except Exception as e:  # Bắt lỗi cụ thể từ PyMuPDF
             try:
                 with pdfplumber.open(pdf_path) as document:  # Mở tài liệu PDF bằng pdfplumber
                     for page in document.pages:  # Lặp qua các trang
                         text = page.extract_text()  # Lấy văn bản từ trang
                         pages.append(text)
             except Exception as e:
-                print(f"Lỗi không thể đọc được nội dung từ PDF bằng PyMuPDF và pdfplumber:\n{e}")
-                print(pdf_path)       
+                print(f"Lỗi không thể đọc được nội dung từ PDF bằng PyMuPDF và pdfplumber:\n{e}\nPath: {pdf_path}")
+                err = "Error"
+                return err
         return "\n\n".join(pages).strip()
 
 def parse_dates(date_str, last_date=False):
@@ -182,5 +189,24 @@ def edit_date(data, file_path):
                 error_path += file_path + '\n'
     with open("error_path.txt", 'w', encoding='utf-8') as file:  # Specify the output file path
         file.write(error_path)  # Convert data to JSON string
+    
+    return data
+
+def convert_response_to_json_string(response, file_name):
+    output_path = "./src/jd_assistants/results_json/"
+    text = response.replace('/n',' ') # Ghi nội dung của biến text vào file
+
+    start_index = text.find('```json') + len('```json')
+    end_index = text.find('```', start_index)
+    json_string = text[start_index:end_index].strip()
+    
+    data = json.loads(json_string)
+    # print("data load json")
+    # print(data)
+    data = clean_data(data)
+    # print(type(data))
+    
+    with open(output_path+file_name+'.json', 'w', encoding='utf-8') as json_file:
+        json.dump(data, json_file, ensure_ascii=False, indent=4)
     
     return data

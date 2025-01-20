@@ -1,0 +1,27 @@
+summary:
+  description: >
+    Tóm tắt tiểu sử của ứng viên.
+
+    Sử dụng kĩ năng chuyên môn của bạn để tóm tắt lại tiểu sử của ứng viên. Nội dung của tiểu sử gồm các ý chính sau:
+    - Hồ sơ của ứng viên.
+    - Số năm kinh nghịeo
+    - Kinh nghiệm học tập.
+    - Kinh nghiệm nghề nghiệp.
+    - Kỹ năng cá nhân.
+    - Các công nghệ từng sử dụng
+
+    THÔNG TIN ỨNG VIÊN
+    -----------------
+    Tên ứng viên: {name}
+    Kinh nghiệm học tập: {education}
+    Kinh nghiệm làm việc: {work_experience}
+    Kỹ năng: {skills}
+
+    HƯỚNG DẪN THÊM
+    -----------------------
+    - Tóm tắt tiểu sử ứng viên một cách ngắn gọn và rõ ràng, nhấn mạnh các điểm mạnh và kinh nghiệm nổi bật của họ.
+
+  expected_output: >
+    Một đoạn văn được cá nhân hóa dựa trên thông tin của ứng viên. Nó nên ngắn gọn, rõ ràng và đầy đủ thông tin.
+    Đầu ra là tiếng việt.
+  agent: summarization_agent

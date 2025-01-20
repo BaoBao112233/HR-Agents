@@ -15,17 +15,15 @@ class LeadReadCVCrew:
     tasks_config = "config/tasks.yaml"
 
     @agent
-    def hr_evaluation_agent(self) -> Agent:
+    def hr_extractor_agent(self) -> Agent:
+        # print(self.agents_config["hr_extractor_agent"])
         return Agent(
-            config=self.agents_config["hr_extraction_agent"],
-            verbose=True,
-            tools=[
-                ReadPDFTool()
-            ]
+            config=self.agents_config["hr_extractor_agent"],
+            verbose=True
         )
 
     @task
-    def evaluate_candidate_task(self) -> Task:
+    def extract_candidate_task(self) -> Task:
         return Task(
             config=self.tasks_config["extract_candidate"],
             output_pydantic=CandidateProfile,

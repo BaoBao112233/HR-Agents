@@ -2,103 +2,39 @@ extract_candidate:
   description: >
     Đọc file PDF chứa thông tin cá nhân, học vấn, kỹ năng, dự án, và các dữ liệu khác, sau đó trả về kết quả dưới dạng JSON.
     Bạn sẽ trích xuất các thông tin từ file pdf và xếp các thông tin vào đúng trường thông tin lưu trữ trong file json.
-
-    MẪU FILE JSON
+    
+    NỘI DUNG FILE PDF
     -----------------
-    {
-      "personal_info": {
-        "name": "string",
-        "email": "string",
-        "phone": "string",
-        "job_title": "string",
-        "dob": "string (yyyy or yyyy-mm or yyyy-mm-dd)",
-        "address": "string"
-      },
-      "additional_info": "string",
-      "education": [
-        {
-          "university": "string",
-          "major": "string",
-          "start_date": "string (yyyy or yyyy-mm or yyyy-mm-dd)",
-          "end_date": "string (yyyy or yyyy-mm or yyyy-mm-dd)",
-          "descriptions": "string"
-        }
-      ],
-      "work_experience": [
-        {
-          "company": "string",
-          "position": "string",
-          "start_date": "string (yyyy or yyyy-mm or yyyy-mm-dd)",
-          "end_date": "string (yyyy or yyyy-mm or yyyy-mm-dd)",
-          "descriptions": "string"
-        }
-      ],
-      "courses": [
-        {
-          "name": "string",
-          "organization": "string",
-          "start_date": "string (yyyy or yyyy-mm or yyyy-mm-dd)",
-          "end_date": "string (yyyy or yyyy-mm or yyyy-mm-dd)",
-          "descriptions": "string"
-        }  
-      ],
-      "projects": [
-        {
-          "name": "string",
-          "customer": "string",
-          "num_members": "number",
-          "position": "string",
-          "tasks": "string",
-          "technologies": ["string"],
-          "start_date": "string (yyyy or yyyy-mm or yyyy-mm-dd)",
-          "end_date": "string (yyyy or yyyy-mm or yyyy-mm-dd)",
-          "descriptions": "string"
-        }
-      ],
-      "products": [
-        {
-          "name": "string",
-          "class": "string",
-          "start_date": "string (yyyy or yyyy-mm or yyyy-mm-dd)",
-          "end_date": "string (yyyy or yyyy-mm or yyyy-mm-dd)",
-          "descriptions": "string"
-        }
-      ],
-      "skills": [
-        {
-          "name": "string",
-          "levels": "number",
-          "descriptions": "string"
-        }
-      ],
-      "certificate": [
-        {
-          "organization": "string",
-          "name": "string",
-          "start_date": "string (yyyy or yyyy-mm or yyyy-mm-dd)",
-          "end_date": "string (yyyy or yyyy-mm or yyyy-mm-dd)",
-          "descriptions": "string"
-        } 
-      ],
-      "awards": [
-        {
-          "organization": "string",
-          "name": "string",
-          "start_date": "string (yyyy or yyyy-mm or yyyy-mm-dd)",
-          "end_date": "string (yyyy or yyyy-mm or yyyy-mm-dd)",
-          "descriptions": "string"
-        } 
-      ],
-      "activities": [
-        {
-          "organization": "string",
-          "position": "string",
-          "start_date": "string (yyyy or yyyy-mm or yyyy-mm-dd)",
-          "end_date": "string (yyyy or yyyy-mm or yyyy-mm-dd)",
-          "descriptions": "string"
-        } 
-      ]
-    }
+    {pdf_content}
+
+    THÔNG TIN CÁC TRƯỜNG DỮ LIỆU TRONG FILE JSON
+    -----------------
+    1. personal_info: Các thông tin cơ bản về ứng viên.
+    1.1. name: Tên của ứng viên. (Ví dụ: Nguyễn Văn A)
+    1.2. job_title: Chức danh công việc của ứng viên. (Ví dụ: Kế toán)
+    1.3. phone: Số điện thoại liên lạc của ứng viên. (Ví dụ: 0987654321)
+    1.4. email: Địa chỉ email của ứng viên. (Ví dụ: nguyenvana123@gmail.com)
+    1.5. dob: Ngày sinh của ứng viên. (yyyy or yyyy-mm or yyyy-mm-dd) 
+    1.6. address: Địa chỉ của ứng viên.
+    
+    2. education: Các thông tin cơ bản về học vấn của ứng viên
+    2.1. university: Tên trường đại học mà ứng viên đã theo học. (Ví dụ: Trường Đại học Bách Khoa)
+    2.2. major: Chuyên ngành học của ứng viên. (Ví dụ: Ngành kế toán)
+    2.3. start_date: Ngày bắt đầu học. (Ví dụ: 01/10/2024)
+    2.5. end_date: Ngày kết thúc học. (Ví dụ: 31/10/2024)
+    2.6. description: Các phần thông tin mô tả về về quá trình học của ứng viên (Ví dụ: GPA, Grade)
+
+    3. work_experience: Các thông tin cơ bản về kinh nghiệm làm việc của ứng viên
+    3.1. company: Tên công ty nơi ứng viên đã làm việc. (Ví dụ: Công ty ABC)
+    3.2. position: Vị trí công việc của ứng viên. (Ví dụ: Kế toán)
+    3.3. start_date: Ngày bắt đầu làm việc. (Ví dụ: 01/10/2024)
+    3.4. end_date: Ngày kết thúc làm việc. (Ví dụ: 31/10/2024)
+    3.5. description: Thông tin về các nhiệm vụ, công việc, dự án, trách nhiệm, ... của ứng viên trong thời gian làm việc tại công ty.
+    
+    4. skill: Các thông tin về kỹ năng của ứng viên
+    4.1. name: Tên kỹ năng của ứng viên. (Ví dụ: Kỹ năng giao tiếp, Excel, ...)
+    4.2. levels: Đánh giá mức độ thành thạo. (Ví dụ: 1, 2, 3, 4, 5, ...)
+    4.5. description: Mô tả chi tiết về kỹ năng.
 
     HƯỚNG DẪN THÊM VÀ LƯU Ý:
     -----------------
@@ -111,7 +47,8 @@ extract_candidate:
     - Chỉ loại bỏ phần địa chỉ nếu nó đi kèm tên trường đại học (ví dụ: "CAO ĐẲNG FPT POLYTECHNIC Trịnh Văn Bô - Nam Từ Liêm - Hà Nội" => "CAO ĐẲNG FPT POLYTECHNIC"). Nếu tên trường không chứa địa chỉ (ví dụ: "Trường Đại học Quốc Gia Hà Nội"), giữ nguyên tên trường.
     - Dữ liệu ngày tháng phải tuân thủ định dạng yyyy-mm-dd.
     - Đối với thông tin về start_date, nếu không có thông tin ngày cụ thể thì sẽ là ngày đâu tiên của tháng, nếu không có thông tin về ngày và tháng cụ thể thì sẽ là ngày đầu tiên của năm.
-    - Đối với thông tin về end_date, nếu không có thông tin ngày cụ thể thì sẽ là ngày cuối cùng của tháng, nếu không có thông tin về ngày và tháng cụ thể thì sẽ là ngày cuối cùng của năm.
+    - Đối với thông tin về end_date, nếu không có thông tin ngày cụ thể thì sẽ là ngày cuối cùng của tháng, nếu không có thông tin về ngày và tháng cụ thể thì sẽ là ngày cuối cùng của năm. Đối với các trường hợp end_date ghi là "đến nay" hay các từ ngữ cùng nghĩa thì trả về giá trị của ngày hôm nay.
+    Ngày hôm nay: {today_value}
     - Mô tả dự án và công việc phải chi tiết, tập trung vào nội dung thực hiện.
     - Trong phần kinh nghiệm làm việc, bao gồm kinh nghiệm khi làm việc tại các trung tâm, các công việc giải dạy tại các trường học, các công việc tại các công ty, không bao gồm kinh nghiệm dự án.
     - Trong phần kinh nghiệm làm việc, chỉ trích xuất các công việc liên quan, không phân tách không cần thiết (VD: gộp các phân đoạn thuộc cùng công ty vào một mục nếu liên quan đến cùng vị trí hoặc dự án).
@@ -127,4 +64,4 @@ extract_candidate:
   expected_output: >
     Nội dung đầu ra luôn phải là một đối tượng CandidateProfile. 
     Ngôn ngữ đầu ra phải là tiếng Việt.
-  agent: hr_extraction_agent
+  agent: hr_extractor_agent
