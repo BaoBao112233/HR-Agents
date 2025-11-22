@@ -1,4 +1,4 @@
-from crewai.tools import BaseTool
+from langchain_core.tools import BaseTool
 from typing import Type
 from pydantic import BaseModel, Field
 import fitz
@@ -21,6 +21,7 @@ class ReadPDFTool(BaseTool):
         """
     )
     args_schema: Type[BaseModel] = ReadPDFToolInput
+
 
     def _run(self, pdf_path: str) -> str:
         # Đọc nội dung từ file PDF

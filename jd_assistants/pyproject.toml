@@ -1,23 +1,40 @@
 [project]
 name = "jd_assistants"
 version = "0.1.0"
-description = "jd_assistants using crewAI"
+description = "HR Assistant using Langchain and Langgraph"
 authors = [{ name = "Your Name", email = "you@example.com" }]
-requires-python = ">=3.10,<=3.13"
+requires-python = ">=3.10,<3.14"
 dependencies = [
-    "crewai[tools]>=0.86.0,<1.0.0",
+    "langgraph",
+    "langchain",
+    "langchain-groq",
+    "langchain-community",
     "pymupdf",
     "pdfplumber",
-    
+    "pandas",
+    "python-dotenv",
+    "termcolor",
+    "fastapi",
+    "uvicorn[standard]",
+    "gradio",
+    "sqlalchemy",
+    "asyncpg",
+    "redis",
+    "plotly",
+    "python-multipart",
+    "alembic",
+    "aiosqlite"
 ]
+
+
 
 [project.scripts]
 jd_assistants = "jd_assistants.main:run"
-run_crew = "jd_assistants.main:run"
-train = "jd_assistants.main:train"
-replay = "jd_assistants.main:replay"
-test = "jd_assistants.main:test"
+
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/jd_assistants"]

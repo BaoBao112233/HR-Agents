@@ -1,82 +1,214 @@
-# HR Assistants Crew
+# HR Recruitment Assistant 🎯
 
-Chào mừng bạn đến với dự án HR Assistants Crew, Tôi là Nguyễn Gia Bảo, dự án được phát triển dựa trên framwork [crewAI](https://crewai.com). Framework này được thiết kế để giúp Dev thiết lập một hệ thống AI đa tác nhân một cách dễ dàng, tận dụng khung công tác mạnh mẽ và linh hoạt mà crewAI cung cấp. Mục tiêu của CrewAI là cho phép các tác nhân của bạn hợp tác hiệu quả trong các nhiệm vụ phức tạp, tối đa hóa trí tuệ và khả năng tập thể của chúng.
+A production-ready web application for HR recruitment with AI-powered CV analysis, candidate scoring, and job description optimization.
 
-## Cài đặt
+## Features
 
-Đảm bảo rằng cài đặt đúng Python >=3.10 <=3.13 trên hệ thống của mình. Dự án này sử dụng [UV](https://docs.astral.sh/uv/) để quản lý phụ thuộc và xử lý gói, mang đến trải nghiệm thiết lập và thực thi liền mạch.
+- 📄 **CV Upload & Processing**: Upload single or multiple CVs (PDF) for automatic extraction
+- 👥 **Candidate Dashboard**: View, filter, and manage all candidates in one place
+- 📊 **Analytics**: Visual insights on candidates, scores, and recruitment trends
+- ✍️ **JD Rewriting**: AI-powered job description improvement and optimization
+- 🎯 **Smart Scoring**: Automatic candidate scoring against job requirements
+- 💾 **PostgreSQL Database**: Production-grade data persistence
+- ⚡ **Redis Caching**: Fast agent memory and result caching
+- 🐳 **Docker Deployment**: Easy deployment with docker-compose
 
-Đầu tiên, nếu bạn chưa cài đặt, hãy cài đặt uv:
+## Tech Stack
 
-```bash
-pip install uv
+- **Backend**: FastAPI, Langchain, Langgraph
+- **Frontend**: Gradio
+- **Database**: PostgreSQL 16
+- **Cache**: Redis 7
+- **LLM**: Groq (llama-3.3-70b)
+- **Deployment**: Docker + docker-compose
+
+## Quick Start
+
+### Prerequisites
+
+- Docker & docker-compose
+- Groq API key ([Get one here](https://console.groq.com/))
+
+### Setup
+
+1. **Clone and navigate**:
+   ```bash
+   cd /home/baobao/Projects/HR-Agents/jd_assistants
+   ```
+
+2. **Configure environment**:
+   ```bash
+   cp .env.example .env
+   # Edit .env and add your GROQ_API_KEY
+   ```
+
+3. **Start services**:
+   ```bash
+   docker-compose up -d
+   ```
+
+4. **Access the application**:
+   - Web UI: http://localhost:7860
+   - Check logs: `docker-compose logs -f app`
+
+### Development Mode
+
+For local development without Docker:
+
+1. **Install dependencies**:
+   ```bash
+   pip install -e .
+   ```
+
+2. **Start PostgreSQL and Redis** (via Docker):
+   ```bash
+   docker-compose up -d postgres redis
+   ```
+
+3. **Set environment variables**:
+   ```bash
+   export DATABASE_URL="postgresql+asyncpg://hr_user:hr_password@localhost:5432/hr_db"
+   export REDIS_URL="redis://localhost:6379/0"
+   export GROQ_API_KEY="your_api_key_here"
+   ```
+
+4. **Run application**:
+   ```bash
+   python -m jd_assistants.app
+   ```
+
+## Usage Guide
+
+### 1. Upload CVs
+- Go to "📄 Upload CVs" tab
+- Select one or multiple PDF files
+- Click "Process CVs"
+- View extracted candidate information
+
+### 2. Create Job Description
+- Go to "📋 Job Description" tab
+- Enter job title, description, and required skills
+- Click "Save Job Description"
+
+### 3. Score Candidates
+- Go to "👥 Candidates Dashboard" tab
+- Click "Score All Candidates"
+- View ranked candidates with scores and reasons
+
+### 4. View Analytics
+- Go to "📊 Analytics" tab
+- Click "Generate Analytics"
+- View score distributions and trends
+
+### 5. Improve Job Descriptions
+- Go to "✍️ JD Rewriting" tab
+- Paste your JD
+- Click "Analyze & Suggest Improvements" for feedback
+- Click "Rewrite Complete JD" for a complete rewrite
+
+## Architecture
+
+```
+┌─────────────┐
+│   Gradio    │ ← User Interface
+│   Frontend  │
+└──────┬──────┘
+       │
+┌──────┴────────────────────────┐
+│   Application Layer           │
+│  - CV Processing              │
+│  - Candidate Scoring          │
+│  - JD Rewriting               │
+│  - Analytics                  │
+└───────┬───────────────────────┘
+        │
+   ┌────┴────┐
+   │         │
+┌──┴──┐  ┌──┴───┐
+│ DB  │  │Redis │
+│(PG) │  │Cache │
+└─────┘  └──────┘
 ```
 
-Tiếp theo, điều hướng đến thư mục dự án của bạn và cài đặt các phụ thuộc:
+## Environment Variables
 
-(Tùy chọn) Khóa các phụ thuộc và cài đặt chúng bằng cách sử dụng lệnh CLI:
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `DATABASE_URL` | PostgreSQL connection string | `postgresql+asyncpg://hr_user:hr_password@localhost:5432/hr_db` |
+| `REDIS_URL` | Redis connection string | `redis://localhost:6379/0` |
+| `GROQ_API_KEY` | Groq API key | *Required* |
+| `APP_HOST` | Application host | `0.0.0.0` |
+| `APP_PORT` | Application port | `7860` |
 
-```bash
-crewai install
-```
-
-### Tùy chỉnh
-
-**Thêm `OPENAI_API_KEY` của bạn vào file `.env`**
-
-- Chỉnh sửa `src/jd_assistants/crews/{tên crew}/config/agents.yaml` để định nghĩa các tác nhân của bạn
-- Chỉnh sửa `src/jd_assistants/crews/{tên crew}/config/tasks.yaml` để định nghĩa các nhiệm vụ của bạn
-- Chỉnh sửa `src/jd_assistants/crews/{tên crew}/crew.py` để thêm logic, công cụ và các tham số cụ thể của bạn
-- Chỉnh sửa `src/jd_assistants/main.py` để thêm đầu vào tùy chỉnh cho các tác nhân và nhiệm vụ của bạn
-
-## Chạy Dự Án
-
-Để khởi động đội ngũ AI của bạn và bắt đầu thực hiện nhiệm vụ, hãy chạy lệnh này từ thư mục gốc của dự án:
+## Docker Commands
 
 ```bash
-$ crewai run
+# Start all services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop all services
+docker-compose down
+
+# Rebuild after code changes
+docker-compose up -d --build
+
+# View database
+docker-compose exec postgres psql -U hr_user -d hr_db
+
+# Redis CLI
+docker-compose exec redis redis-cli
 ```
 
+## Project Structure
 
-Lệnh này khởi tạo Đội ngũ jd_assistants, lắp ráp các tác nhân và phân công cho chúng các nhiệm vụ như đã định nghĩa trong cấu hình của bạn.
+```
+jd_assistants/
+├── Dockerfile                 # Application container
+├── docker-compose.yml        # Service orchestration
+├── .env.example              # Environment variables template
+├── src/jd_assistants/
+│   ├── agent/                # AI agents
+│   │   ├── base.py          # Base agent class
+│   │   ├── read_cv.py       # CV extraction
+│   │   ├── summarization.py # Bio generation
+│   │   ├── score.py         # Candidate scoring
+│   │   ├── response.py      # Email generation
+│   │   └── jd_rewriter.py   # JD improvement
+│   ├── database.py          # PostgreSQL models & CRUD
+│   ├── cache.py             # Redis operations
+│   ├── app.py               # Main Gradio application
+│   ├── models.py            # Pydantic models
+│   └── tools/               # Utilities
+└── pyproject.toml           # Dependencies
+```
 
-Ví dụ này, không thay đổi, sẽ tạo ra một file `report.md` với đầu ra của một nghiên cứu về LLMs trong thư mục gốc.
+## Troubleshooting
 
-## Hiểu Về HR Assistant Crew
+### Database connection errors
+- Ensure PostgreSQL is running: `docker-compose ps postgres`
+- Check credentials in `.env`
+- Verify database URL format
 
-HR Assistant Crew được cấu thành từ nhiều tác nhân AI, mỗi tác nhân có vai trò, mục tiêu và công cụ riêng biệt. Các tác nhân này hợp tác trong một loạt các nhiệm vụ, được định nghĩa trong `config/tasks.yaml`, tận dụng kỹ năng tập thể của chúng để đạt được các mục tiêu phức tạp. File `config/agents.yaml` phác thảo khả năng và cấu hình của từng tác nhân trong đội ngũ của bạn.
+### Redis connection errors
+- Ensure Redis is running: `docker-compose ps redis`
+- Check Redis URL in `.env`
 
-## Luồng Hoạt Động Của Dự Án
+### API rate limits
+- Groq has rate limits on free tier
+- Add delays between batch operations
+- Consider upgrading Groq plan
 
-Dự án HR Assistant Crew hoạt động theo một quy trình tuần tự, bắt đầu từ việc tải lên các CV ứng viên, sau đó phân tích và đánh giá các ứng viên dựa trên các tiêu chí đã định nghĩa. Các tác nhân AI trong đội ngũ sẽ hợp tác để thực hiện các nhiệm vụ như đọc CV, chấm điểm ứng viên và tạo email phản hồi.
+## License
 
-1. **Tải lên CV**: Người dùng cung cấp đường dẫn đến các file CV, hệ thống sẽ tự động quét và thu thập thông tin từ các file này.
-2. **Phân tích CV**: Các tác nhân AI sẽ sử dụng các công cụ như PyMuPDF để đọc và trích xuất thông tin từ CV, bao gồm thông tin cá nhân, học vấn, kinh nghiệm làm việc và kỹ năng.
-3. **Chấm điểm ứng viên**: Dựa trên các tiêu chí đã được định nghĩa trong `config/tasks.yaml`, hệ thống sẽ chấm điểm các ứng viên và lưu trữ kết quả.
-4. **Gửi phản hồi**: Sau khi chấm điểm, hệ thống sẽ tạo email phản hồi cho từng ứng viên, thông báo về kết quả và các bước tiếp theo.
+MIT License - See LICENSE file for details
 
-Quy trình này giúp tối ưu hóa việc tuyển dụng, đảm bảo rằng các ứng viên phù hợp nhất được lựa chọn cho các vị trí cần tuyển.
+## Contributing
 
-## Công Nghệ Sử Dụng
-
-Dự án HR Assistants Crew sử dụng một số công nghệ và thư viện chính sau:
-
-- **Python**: Ngôn ngữ lập trình chính được sử dụng để phát triển dự án.
-- **crewAI**: Framework cho phép xây dựng hệ thống AI đa tác nhân, giúp các tác nhân hợp tác hiệu quả trong các nhiệm vụ phức tạp.
-- **PyMuPDF**: Thư viện được sử dụng để đọc và trích xuất thông tin từ các file PDF.
-- **pandas**: Thư viện để xử lý và phân tích dữ liệu, đặc biệt là để lưu trữ kết quả vào file CSV.
-- **asyncio**: Thư viện hỗ trợ lập trình bất đồng bộ, cho phép thực hiện nhiều tác vụ đồng thời.
-- **pydantic**: Thư viện để xác thực dữ liệu và tạo các mô hình dữ liệu.
-- **UV**: Công cụ quản lý phụ thuộc và xử lý gói, giúp cài đặt và thực thi dự án một cách liền mạch.
-
-Các công nghệ này kết hợp với nhau để tạo ra một hệ thống tuyển dụng tự động, giúp tối ưu hóa quy trình tuyển dụng và nâng cao hiệu quả làm việc.
-
-## Hỗ Trợ
-
-Để được hỗ trợ, đặt câu hỏi hoặc phản hồi về HR Assistants Crew hoặc crewAI.
-- Truy cập [tài liệu của CrewAI](https://docs.crewai.com)
-- Liên hệ với CrewAI qua [kho lưu trữ GitHub](https://github.com/joaomdmoura/crewai)
-- [Tham gia Discord của CrewAI](https://discord.com/invite/X4JWnZnxPb)
-- [Trò chuyện với tài liệu của CrewAI](https://chatg.pt/DWjSBZn)
-
-Hãy cùng nhau tạo ra những điều kỳ diệu với sức mạnh và sự đơn giản của crewAI.
+Contributions welcome! Please:
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request

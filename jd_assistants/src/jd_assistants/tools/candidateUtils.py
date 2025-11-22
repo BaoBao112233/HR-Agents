@@ -1,6 +1,6 @@
 from typing import List
 
-from jd_assistants.types import Candidate, CandidateScore, ScoredCandidate
+from jd_assistants.models import Candidate, CandidateScore, ScoredCandidate
 
 
 def combine_candidates_with_scores(
