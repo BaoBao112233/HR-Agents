@@ -214,3 +214,128 @@ async def create_candidate(session: AsyncSession, candidate_data: dict):
         await session.commit()
         await session.refresh(db_candidate)
         return db_candidate
+
+async def get_all_candidates(session: AsyncSession):
+    """Get all candidates"""
+    stmt = select(DBCandidate).order_by(DBCandidate.created_at.desc())
+    result = await session.execute(stmt)
+    return result.scalars().all()
+
+async def get_candidate_by_id(session: AsyncSession, candidate_id: str):
+    """Get candidate by ID"""
+    stmt = select(DBCandidate).where(DBCandidate.candidate_id == candidate_id)
+    result = await session.execute(stmt)
+    return result.scalar_one_or_none()
+
+async def delete_candidate(session: AsyncSession, candidate_id: str):
+    """Delete a candidate"""
+    stmt = select(DBCandidate).where(DBCandidate.candidate_id == candidate_id)
+    result = await session.execute(stmt)
+    candidate = result.scalar_one_or_none()
+    if candidate:
+        await session.delete(candidate)
+        await session.commit()
+        return True
+    return False
+
+# Job Description operations
+async def create_job_description(session: AsyncSession, jd_data: dict):
+    """Create new job description"""
+    jd = DBJobDescription(**jd_data)
+    session.add(jd)
+    await session.commit()
+    await session.refresh(jd)
+    return jd
+
+async def get_active_jd(session: AsyncSession):
+    """Get currently active job description"""
+    stmt = select(DBJobDescription).where(DBJobDescription.is_active == 1).order_by(DBJobDescription.created_at.desc())
+    result = await session.execute(stmt)
+    return result.scalar_one_or_none()
+
+async def get_all_jds(session: AsyncSession):
+    """Get all job descriptions"""
+    stmt = select(DBJobDescription).order_by(DBJobDescription.created_at.desc())
+    result = await session.execute(stmt)
+    return result.scalars().all()
+
+async def get_jd_by_id(session: AsyncSession, jd_id: int):
+    """Get job description by ID"""
+    stmt = select(DBJobDescription).where(DBJobDescription.id == jd_id)
+    result = await session.execute(stmt)
+    return result.scalar_one_or_none()
+
+async def update_jd(session: AsyncSession, jd_id: int, jd_data: dict):
+    """Update job description"""
+    stmt = select(DBJobDescription).where(DBJobDescription.id == jd_id)
+    result = await session.execute(stmt)
+    jd = result.scalar_one_or_none()
+    
+    if jd:
+        for key, value in jd_data.items():
+            setattr(jd, key, value)
+        jd.updated_at = datetime.utcnow()
+        await session.commit()
+        await session.refresh(jd)
+        return jd
+    return None
+
+async def delete_jd(session: AsyncSession, jd_id: int):
+    """Delete job description"""
+    stmt = select(DBJobDescription).where(DBJobDescription.id == jd_id)
+    result = await session.execute(stmt)
+    jd = result.scalar_one_or_none()
+    if jd:
+        await session.delete(jd)
+        await session.commit()
+        return True
+    return False
+
+async def activate_jd(session: AsyncSession, jd_id: int):
+    """Set a job description as active and deactivate others"""
+    # Deactivate all JDs
+    stmt = select(DBJobDescription)
+    result = await session.execute(stmt)
+    all_jds = result.scalars().all()
+    for jd in all_jds:
+        jd.is_active = 0
+    
+    # Activate the specified JD
+    stmt = select(DBJobDescription).where(DBJobDescription.id == jd_id)
+    result = await session.execute(stmt)
+    jd = result.scalar_one_or_none()
+    if jd:
+        jd.is_active = 1
+        await session.commit()
+        return jd
+    return None
+
+# Candidate Score operations
+async def save_candidate_score(session: AsyncSession, score_data: dict, jd_id: int):
+    """Save candidate score"""
+    score = DBCandidateScore(
+        candidate_id=score_data.get("id"),
+        name=score_data.get("name"),
+        score=score_data.get("score"),
+        reason=score_data.get("reason"),
+        jd_id=jd_id
+    )
+    session.add(score)
+    await session.commit()
+    await session.refresh(score)
+    return score
+
+async def get_candidate_scores(session: AsyncSession, jd_id: int = None):
+    """Get candidate scores, optionally filtered by JD"""
+    if jd_id:
+        stmt = select(DBCandidateScore).where(DBCandidateScore.jd_id == jd_id).order_by(DBCandidateScore.score.desc())
+    else:
+        stmt = select(DBCandidateScore).order_by(DBCandidateScore.created_at.desc())
+    result = await session.execute(stmt)
+    return result.scalars().all()
+
+async def get_scores_by_jd(session: AsyncSession, jd_id: int):
+    """Get all scores for a specific JD"""
+    stmt = select(DBCandidateScore).where(DBCandidateScore.jd_id == jd_id).order_by(DBCandidateScore.score.desc())
+    result = await session.execute(stmt)
+    return result.scalars().all()

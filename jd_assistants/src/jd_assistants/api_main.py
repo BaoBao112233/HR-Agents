@@ -136,10 +136,12 @@ async def get_dashboard(current_user = Depends(get_current_user)):
 # ===== INCLUDE ROUTERS =====
 from jd_assistants.backend.api.v1.employees import router as employees_router
 from jd_assistants.backend.api.v1.org import dept_router, pos_router
+from jd_assistants.backend.api.v1.recruitment import router as recruitment_router
 
 app.include_router(employees_router)
 app.include_router(dept_router)
 app.include_router(pos_router)
+app.include_router(recruitment_router)
 
 if __name__ == "__main__":
     import uvicorn
