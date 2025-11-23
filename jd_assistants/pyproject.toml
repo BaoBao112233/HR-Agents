@@ -23,7 +23,13 @@ dependencies = [
     "plotly",
     "python-multipart",
     "alembic",
-    "aiosqlite"
+    "aiosqlite",
+    "python-jose[cryptography]",
+    "passlib[bcrypt]",
+    "bcrypt",
+    "python-dateutil",
+    "httpx",
+    "email-validator"
 ]
 
 
