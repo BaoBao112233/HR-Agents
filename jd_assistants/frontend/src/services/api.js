@@ -102,10 +102,120 @@ export const jdAIAPI = {
         formData.append('jd_text', jdText);
         return api.post('/api/v1/jd-ai/analyze', formData);
     },
+    analyzeStream: async (jdText, language, onProgress, onFinal, onError) => {
+        const formData = new FormData();
+        formData.append('jd_text', jdText);
+        formData.append('language', language || 'en');
+        
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/v1/jd-ai/analyze-stream`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || '';
+
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        try {
+                            const data = JSON.parse(line.slice(6));
+                            
+                            if (data.type === 'thinking' && onProgress) {
+                                onProgress(data);
+                            } else if (data.type === 'final' && onFinal) {
+                                onFinal(data.data);
+                            } else if (data.type === 'error' && onError) {
+                                onError(data.error);
+                            }
+                        } catch (e) {
+                            console.error('Error parsing SSE data:', e);
+                        }
+                    }
+                }
+            }
+        } catch (error) {
+            if (onError) {
+                onError(error.message);
+            }
+            throw error;
+        }
+    },
     rewrite: (jdText) => {
         const formData = new FormData();
         formData.append('jd_text', jdText);
         return api.post('/api/v1/jd-ai/rewrite', formData);
+    },
+    rewriteStream: async (jdText, language, onProgress, onFinal, onError) => {
+        const formData = new FormData();
+        formData.append('jd_text', jdText);
+        formData.append('language', language || 'en');
+        
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/v1/jd-ai/rewrite-stream`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || '';
+
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        try {
+                            const data = JSON.parse(line.slice(6));
+                            
+                            if (data.type === 'thinking' && onProgress) {
+                                onProgress(data);
+                            } else if (data.type === 'final' && onFinal) {
+                                onFinal(data.data);
+                            } else if (data.type === 'error' && onError) {
+                                onError(data.error);
+                            }
+                        } catch (e) {
+                            console.error('Error parsing SSE data:', e);
+                        }
+                    }
+                }
+            }
+        } catch (error) {
+            if (onError) {
+                onError(error.message);
+            }
+            throw error;
+        }
     },
     generate: (requirements) => {
         const formData = new FormData();

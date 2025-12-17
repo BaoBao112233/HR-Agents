@@ -2,12 +2,14 @@
 Recruitment API endpoints for CV and JD management
 """
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
 from pathlib import Path
 import os
 from datetime import datetime
+import json
+import asyncio
 
 from jd_assistants.database import (
     get_session,
@@ -333,6 +335,72 @@ async def analyze_jd(jd_text: str = Form(...)):
     
     return {"success": False, "error": "Failed to analyze JD"}
 
+@router.post("/jd-ai/analyze-stream")
+async def analyze_jd_stream(jd_text: str = Form(...), language: str = Form(default="en")):
+    """Analyze JD with streaming response and thinking process"""
+    if not jd_text:
+        raise HTTPException(status_code=400, detail="JD text is required")
+    
+    async def event_generator():
+        try:
+            async for chunk in jd_rewriter_agent.astream_analyze_jd(jd_text, language):
+                # Send each chunk as SSE format
+                if chunk.get("type") == "progress":
+                    event_data = {
+                        "type": "thinking",
+                        "content": chunk.get("content", ""),
+                        "accumulated": chunk.get("accumulated", "")
+                    }
+                elif chunk.get("type") == "final":
+                    data = chunk.get("data")
+                    if data:
+                        event_data = {
+                            "type": "final",
+                            "data": {
+                                "thinking": data.thinking,
+                                "overall_score": data.overall_score,
+                                "key_recommendations": data.key_recommendations,
+                                "improvements": [
+                                    {
+                                        "section": imp.section,
+                                        "original": imp.original,
+                                        "improved": imp.improved,
+                                        "reason": imp.reason
+                                    } for imp in data.improvements[:5]
+                                ]
+                            }
+                        }
+                    else:
+                        event_data = {"type": "error", "error": "No data in final chunk"}
+                elif chunk.get("type") == "error":
+                    event_data = {
+                        "type": "error",
+                        "error": chunk.get("error", "Unknown error"),
+                        "raw_content": chunk.get("raw_content", "")
+                    }
+                else:
+                    continue
+                
+                yield f"data: {json.dumps(event_data)}\n\n"
+        except Exception as e:
+            import traceback
+            error_data = {
+                "type": "error", 
+                "error": str(e),
+                "traceback": traceback.format_exc()
+            }
+            yield f"data: {json.dumps(error_data)}\n\n"
+    
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"
+        }
+    )
+
 @router.post("/jd-ai/rewrite")
 async def rewrite_jd(jd_text: str = Form(...)):
     """Rewrite complete JD using AI"""
@@ -346,6 +414,63 @@ async def rewrite_jd(jd_text: str = Form(...)):
         "rewritten": rewritten,
         "success": True
     }
+
+@router.post("/jd-ai/rewrite-stream")
+async def rewrite_jd_stream(jd_text: str = Form(...), language: str = Form(default="en")):
+    """Rewrite JD with streaming response and thinking process"""
+    if not jd_text:
+        raise HTTPException(status_code=400, detail="JD text is required")
+    
+    async def event_generator():
+        try:
+            async for chunk in jd_rewriter_agent.astream_rewrite_jd(jd_text, language=language):
+                if chunk.get("type") == "progress":
+                    event_data = {
+                        "type": "thinking",
+                        "content": chunk.get("content", ""),
+                        "accumulated": chunk.get("accumulated", "")
+                    }
+                elif chunk.get("type") == "final":
+                    data = chunk.get("data")
+                    if data:
+                        event_data = {
+                            "type": "final",
+                            "data": {
+                                "thinking": data.thinking,
+                                "rewritten_jd": data.rewritten_jd,
+                                "key_changes": data.key_changes
+                            }
+                        }
+                    else:
+                        event_data = {"type": "error", "error": "No data in final chunk"}
+                elif chunk.get("type") == "error":
+                    event_data = {
+                        "type": "error",
+                        "error": chunk.get("error", "Unknown error"),
+                        "raw_content": chunk.get("raw_content", "")
+                    }
+                else:
+                    continue
+                
+                yield f"data: {json.dumps(event_data)}\n\n"
+        except Exception as e:
+            import traceback
+            error_data = {
+                "type": "error", 
+                "error": str(e),
+                "traceback": traceback.format_exc()
+            }
+            yield f"data: {json.dumps(error_data)}\n\n"
+    
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"
+        }
+    )
 
 @router.post("/jd-ai/generate")
 async def generate_jd_from_requirements(

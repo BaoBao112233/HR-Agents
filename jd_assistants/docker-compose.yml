@@ -40,7 +40,6 @@ services:
     container_name: hr_app
     ports:
       - "8000:8000"
-      - "7860:7860"
     environment:
       DATABASE_URL: postgresql+asyncpg://hr_user:hr_password@postgres:5432/hr_db
       REDIS_URL: redis://redis:6379/0
