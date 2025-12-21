@@ -233,4 +233,13 @@ export const jdAIAPI = {
     },
 };
 
+// API Keys API
+export const apiKeysAPI = {
+    listProviders: () => api.get('/api/v1/api-keys/providers/list'),
+    listKeys: (provider) => api.get('/api/v1/api-keys/', { params: { provider } }),
+    addKey: (data) => api.post('/api/v1/api-keys/', data),
+    deleteKey: (keyId) => api.delete(`/api/v1/api-keys/${keyId}`),
+    getActiveKey: (provider) => api.get(`/api/v1/api-keys/${provider}/active`),
+};
+
 export default api;

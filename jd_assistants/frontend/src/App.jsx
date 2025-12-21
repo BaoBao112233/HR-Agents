@@ -11,6 +11,7 @@ import JobDescriptions from './pages/JobDescriptions';
 import CVMatching from './pages/CVMatching';
 import JDRewriting from './pages/JDRewriting';
 import JDGenerator from './pages/JDGenerator';
+import Settings from './pages/Settings';
 import Layout from './components/Layout';
 import { LanguageProvider } from './contexts/LanguageContext';
 
@@ -123,6 +124,16 @@ function App() {
                                 <PrivateRoute>
                                     <Layout user={user}>
                                         <JDGenerator />
+                                    </Layout>
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
+                            path="/settings"
+                            element={
+                                <PrivateRoute>
+                                    <Layout user={user}>
+                                        <Settings />
                                     </Layout>
                                 </PrivateRoute>
                             }

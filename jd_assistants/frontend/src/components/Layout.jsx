@@ -13,6 +13,7 @@ import {
     UserAddOutlined,
     RobotOutlined,
     GlobalOutlined,
+    SettingOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { authAPI } from '../services/api';
@@ -49,6 +50,7 @@ function Layout({ children, user }) {
                 { key: '/recruitment/jd-rewriting', icon: <EditOutlined />, label: t('nav.jdRewriting') },
             ],
         },
+        { key: '/settings', icon: <SettingOutlined />, label: 'Settings' },
     ];
 
     const handleMenuClick = ({ key }) => {

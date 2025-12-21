@@ -1,19 +1,20 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: hr_postgres
-    environment:
-      POSTGRES_DB: hr_db
-      POSTGRES_USER: hr_user
-      POSTGRES_PASSWORD: hr_password
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: hr_clickhouse
     ports:
-      - "5432:5432"
+      - "8123:8123"
+      - "9000:9000"
+    environment:
+      CLICKHOUSE_DB: hr_system
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-clickhouse_pass}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - clickhouse_data:/var/lib/clickhouse
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U hr_user -d hr_db"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8123/ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -41,15 +42,19 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgresql+asyncpg://hr_user:hr_password@postgres:5432/hr_db
+      CLICKHOUSE_HOST: clickhouse
+      CLICKHOUSE_PORT: 8123
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-clickhouse_pass}
+      CLICKHOUSE_DATABASE: hr_system
       REDIS_URL: redis://redis:6379/0
-      GROQ_API_KEY: ${GROQ_API_KEY}
+      DEFAULT_LLM_PROVIDER: groq
       SECRET_KEY: ${SECRET_KEY:-your-secret-key-please-change-in-production}
     volumes:
       - ./uploads:/app/uploads
       - ./src:/app/src
     depends_on:
-      postgres:
+      clickhouse:
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -58,7 +63,7 @@ services:
     restart: unless-stopped
 
 volumes:
-  postgres_data:
+  clickhouse_data:
   redis_data:
 
 networks:
