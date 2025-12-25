@@ -10,7 +10,7 @@ from pathlib import Path
 
 from jd_assistants.clickhouse_db import init_clickhouse, get_user_by_email, get_user_by_id, create_user
 from jd_assistants.auth import (
-    create_user_token, verify_token,
+    create_user_token, verify_token, verify_password,
     Token, UserRegister, get_password_hash, ACCESS_TOKEN_EXPIRE_MINUTES
 )
 
@@ -35,6 +35,8 @@ app.add_middleware(
         "http://localhost:3000",  # Vite dev server
         "http://localhost:5173",  # Alternative Vite port
         "http://localhost:8000",  # Production (same origin)
+        "http://0.0.0.0:8000",    # Docker binding
+        "http://127.0.0.1:8000",  # Localhost alternative
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -113,14 +115,17 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         )
     
     # Verify password
-    from passlib.context import CryptContext
-    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    if not pwd_context.verify(form_data.password, user["password_hash"]):
+    if not verify_password(form_data.password, user["password_hash"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    
+    # Create token
+    access_token = create_user_token(user)
+    return {"access_token": access_token, "token_type": "bearer"}
+
 @app.get("/api/v1/auth/me")
 async def get_current_user_info(current_user = Depends(get_current_user)):
     """Get current user information"""

@@ -106,7 +106,6 @@ def init_clickhouse():
             updated_at DateTime DEFAULT now()
         ) ENGINE = MergeTree()
         ORDER BY (id)
-        PRIMARY KEY (id)
     """)
     
     # Create api_keys table
@@ -117,12 +116,12 @@ def init_clickhouse():
             provider LowCardinality(String),
             key_name String,
             api_key String,
+            model String DEFAULT '',
             is_active UInt8 DEFAULT 1,
             created_at DateTime DEFAULT now(),
             updated_at DateTime DEFAULT now()
         ) ENGINE = MergeTree()
         ORDER BY (user_id, provider, id)
-        PRIMARY KEY (id)
     """)
     
     # Create candidates table
@@ -142,7 +141,6 @@ def init_clickhouse():
             updated_at DateTime DEFAULT now()
         ) ENGINE = MergeTree()
         ORDER BY (candidate_id)
-        PRIMARY KEY (candidate_id)
     """)
     
     # Create job_descriptions table
@@ -160,7 +158,6 @@ def init_clickhouse():
             updated_at DateTime DEFAULT now()
         ) ENGINE = MergeTree()
         ORDER BY (id)
-        PRIMARY KEY (id)
     """)
     
     # Create candidate_scores table
@@ -174,7 +171,6 @@ def init_clickhouse():
             scored_at DateTime DEFAULT now()
         ) ENGINE = MergeTree()
         ORDER BY (jd_id, candidate_id, scored_at)
-        PRIMARY KEY (id)
     """)
     
     # Create jd_analysis table
@@ -190,7 +186,6 @@ def init_clickhouse():
             analyzed_at DateTime DEFAULT now()
         ) ENGINE = MergeTree()
         ORDER BY (jd_id, analyzed_at)
-        PRIMARY KEY (id)
     """)
     
     print(f"✅ ClickHouse database '{db.database}' initialized successfully")
@@ -271,6 +266,7 @@ def create_api_key(key_data: Dict) -> Dict:
         "provider": key_data["provider"],
         "key_name": key_data.get("key_name", f"{key_data['provider']} Key"),
         "api_key": key_data["api_key"],
+        "model": key_data.get("model", ""),
         "is_active": 1,
         "created_at": datetime.utcnow(),
         "updated_at": datetime.utcnow()
@@ -307,9 +303,10 @@ def get_user_api_keys(user_id: str, provider: str = None) -> List[Dict]:
             "provider": row[2],
             "key_name": row[3],
             "api_key": row[4],
-            "is_active": bool(row[5]),
-            "created_at": row[6],
-            "updated_at": row[7]
+            "model": row[5] if len(row) > 7 else "",
+            "is_active": bool(row[6] if len(row) > 7 else row[5]),
+            "created_at": row[7] if len(row) > 7 else row[6],
+            "updated_at": row[8] if len(row) > 7 else row[7]
         })
     
     return keys

@@ -77,8 +77,11 @@ async def authenticate_user(session, email: str, password: str):
 def create_user_token(user):
     """Create an access token for a user"""
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    # Handle both dict and object
+    email = user["email"] if isinstance(user, dict) else user.email
+    role = user["role"] if isinstance(user, dict) else user.role
     access_token = create_access_token(
-        data={"sub": user.email, "role": user.role},
+        data={"sub": email, "role": role},
         expires_delta=access_token_expires
     )
     return access_token

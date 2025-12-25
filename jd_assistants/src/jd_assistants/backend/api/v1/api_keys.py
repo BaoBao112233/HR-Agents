@@ -18,6 +18,7 @@ class APIKeyCreate(BaseModel):
     provider: str  # groq, openrouter, gemini, gpt, openai
     key_name: Optional[str] = None
     api_key: str
+    model: Optional[str] = None  # Selected model for this key
 
 
 class APIKeyResponse(BaseModel):
@@ -25,6 +26,7 @@ class APIKeyResponse(BaseModel):
     provider: str
     key_name: str
     api_key_preview: str  # Masked version
+    model: str
     is_active: bool
     created_at: datetime
 
@@ -66,7 +68,8 @@ async def add_api_key(
         "user_id": user_id,
         "provider": key_data.provider.lower(),
         "key_name": key_data.key_name or f"{key_data.provider} Key",
-        "api_key": key_data.api_key
+        "api_key": key_data.api_key,
+        "model": key_data.model or ""
     }
     
     result = create_api_key(key_dict)
@@ -76,6 +79,7 @@ async def add_api_key(
         provider=result["provider"],
         key_name=result["key_name"],
         api_key_preview=mask_api_key(result["api_key"]),
+        model=result.get("model", ""),
         is_active=True,
         created_at=datetime.utcnow()
     )
@@ -96,6 +100,7 @@ async def list_api_keys(
                 provider=k["provider"],
                 key_name=k["key_name"],
                 api_key_preview=mask_api_key(k["api_key"]),
+                model=k.get("model", ""),
                 is_active=k["is_active"],
                 created_at=k["created_at"]
             )

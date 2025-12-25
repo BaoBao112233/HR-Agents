@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import Login from './pages/Login';
@@ -14,15 +14,41 @@ import JDGenerator from './pages/JDGenerator';
 import Settings from './pages/Settings';
 import Layout from './components/Layout';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { authAPI } from './services/api';
 
 function App() {
     const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        // Fetch user if token exists
+        const token = localStorage.getItem('token');
+        if (token) {
+            authAPI.getCurrentUser()
+                .then(response => {
+                    setUser(response.data);
+                })
+                .catch(error => {
+                    console.error('Failed to fetch user:', error);
+                    // Clear invalid token
+                    localStorage.removeItem('token');
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+        } else {
+            setLoading(false);
+        }
+    }, []);
 
     const isAuthenticated = () => {
         return localStorage.getItem('token') !== null;
     };
 
     const PrivateRoute = ({ children }) => {
+        if (loading) {
+            return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Loading...</div>;
+        }
         return isAuthenticated() ? children : <Navigate to="/login" />;
     };
 

@@ -13,16 +13,18 @@ function Login({ setUser }) {
         setLoading(true);
         try {
             const response = await authAPI.login(values.email, values.password);
-            localStorage.setItem('token', response.data.access_token);
-            message.success('Login successful!');
-
-            // Get user info
-            const userResponse = await authAPI.getCurrentUser();
-            setUser(userResponse.data);
-
-            navigate('/');
+            const token = response.data.access_token;
+            
+            // Save token
+            localStorage.setItem('token', token);
+            
+            message.success('Đăng nhập thành công!');
+            
+            // Redirect to home - let App.jsx handle user fetch
+            window.location.href = '/';
         } catch (error) {
-            message.error(error.response?.data?.detail || 'Login failed');
+            console.error('Login error:', error);
+            message.error(error.response?.data?.detail || 'Đăng nhập thất bại. Vui lòng kiểm tra lại email và mật khẩu.');
         } finally {
             setLoading(false);
         }
